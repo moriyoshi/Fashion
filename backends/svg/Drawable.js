@@ -15,11 +15,13 @@ var Drawable = _class("DrawableSVG", {
       mousemove: null,
       mouseout:  null,
       scroll: null,
-      visualchange: null
+      visualchange: null,
+      mousewheel: null
     },
     _eventFunc: null,
     _captureEventFunc: null,
     _scrollEventFunc: null,
+    _mouseWheelEventFunc: null
     _refresher: null
   },
 
@@ -64,15 +66,16 @@ var Drawable = _class("DrawableSVG", {
                 if (type == 'scroll') {
                   this._viewport.addEventListener(type, this._scrollEventFunc, false);
                   this._handledEvents[type] = this._scrollEventFunc;
+                } else if (type == 'mousewheel') {
+                  this._viewport.addEventListener(type, this._mouseWheelEventFunc, false);
+                  this._handledEvents[type] = this._mouseWheelEventFunc;
+
                 } else if (type.indexOf('visualchange') != 0) {
                   this._svg.addEventListener(type, this._eventFunc, false);
                   this._handledEvents[type] = this._eventFunc;
                 }
               } else if (eventFunc && !handled) {
-                if (type == 'scroll')
-                  this._viewport.removeEventListener(type, this._eventFunc, false);
-                else if (type.indexOf('visualchange') != 0)
-                  this._svg.removeEventListener(type, eventFunc, false);
+                this._viewport.removeEventListener(type, eventFunc, false);
                 this._handledEvents[type] = null;
               }
             }
@@ -114,6 +117,19 @@ var Drawable = _class("DrawableSVG", {
             y: self._viewport.scrollTop
           };
           evt.logicalPosition = self.scrollPosition();
+          self.wrapper.handler.dispatch(evt);
+        }
+      };
+
+      this._mouseWheelEventFunc = function (domEvt) {
+        if (self._handledEvents.mousewheel) {
+          var evt = new Fashion.MouseWheelEvt();
+          evt.target = self.wrapper;
+          if (domEvt.wheelDelta) {
+            evt.target = domEvt.wheelDelta / 120;
+          } else if (domEvt.detail) {
+            evt.target = domEvt.wheelDelta vb
+          }
           self.wrapper.handler.dispatch(evt);
         }
       };
